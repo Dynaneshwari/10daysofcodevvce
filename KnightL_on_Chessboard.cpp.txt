@@ -1,0 +1,103 @@
+KnightL is a chess piece that moves in an L shape. We define the possible moves of KnightL(a,b) as any movement from some position (x1,y1) to some (x2,y2) satisfying either of the following:
+x2 = x1 +- a and y2 = y1 +- b, or x2 = x1 +- b and y2 = y1 +- a
+
+Note that (a,b) and (b,a) allow for the same exact set of movements. For example, in the chessboard of 5x5(x = 0,1,2,3,4 and y = 0,1,2,3,4) the KnightL(1,2) or KnightL(2,1) can move to from
+its current KnightL(2,2) position i.e., center of chessboard.
+For each possible movement, the Knight moves  units in one direction (i.e., horizontal or vertical) and  unit in the perpendicular direction.
+
+Given the value of n for an nxn chessboard, answer the following question for each (a,b) pair where 1 <= a, b < n:
+What is the minimum number of moves it takes for KnightL(a,b) to get from position (0,0) to position (n-1, n-1)? If it's not possible for the Knight to reach that destination, the answer is
+-1 instead.
+Then print the answer for each KnightL(a,b) according to the Output Format specified below.
+
+Constraints:
+5 <= n <= 25
+
+Input Format
+A single integer denoting n.
+
+Output Format
+Print exactly n-1 lines of output in which each line i (where 1 <= i < n) contains n-1 space-separated integers describing the minimum number of moves KnightL(i,j) must make for each 
+respective j (where 1 <= j < n). If some KnightL(i,j) cannot reach position (n-1,n-1), print -1 instead.
+For example, if n = 3, we organize the answers for all the (i,j) pairs in our output like this:
+(1,1) (1,2)
+(2,1) (2,2)
+
+Sample Input 0
+5
+
+Sample Output 0
+4 4 2 8
+4 2 4 4
+2 4 -1 -1
+8 4 -1 1
+
+Explanation 0
+Possible minimal paths for KnightL(1,1), KnightL(1,2), and KnightL(1,3)
+One minimal path for KnightL(1,4) is:
+(0,0) -> (1,4) -> (2,0) -> (3,4) -> (4,0) -> (0,1) -> (4,2) -> (0,3) -> (4,4)
+We then print 4 4 2 8 as our first line of output because KnightL(1,1) took 4 moves, KnightL(1,2) took 4 moves, KnightL(1,3) took 2 moves, and KnightL(1,4) took 8 moves.
+In some of the later rows of output, it's impossible for KnightL(i,j) to reach position (4,4). For example, KnightL(3,3) can only move back and forth between (0,0) and (3,3) so it will 
+never reach (4,4).
+
+
+
+
+
+SOLUTION
+
+
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+def BFS(n,i,j):
+    vset=set()
+    vset.add((0,0))
+    dest=(n-1,n-1)
+    stack=[(0,0)]
+    if i!=j:
+        step=[(i,j),(i,-j),(-i,j),(-i,-j),(j,i),(j,-i),(-j,i),(-j,-i)]
+    else:
+        step=[(i,i),(i,-i),(-i,i),(-i,-i)]
+    count=0
+    while stack:
+        count+=1
+        m=len(stack)
+        while m>0:
+            m-=1
+            x,y=stack.pop(0)
+            for stepx,stepy in step:
+                x1,y1=x+stepx,y+stepy
+                if (x1,y1)==dest:
+                    return count
+                if 0<=x1<n and 0<=y1<n and (x1,y1) not in vset:
+                    vset.add((x1,y1))
+                    stack.append((x1,y1))
+    return -1
+            
+def knightlOnAChessboard(n):
+    ans=[[0]*(n-1) for _ in range(n-1)]
+    for i in range(n-1):
+        for j in range(i,n-1):
+            ans[i][j]=BFS(n,i+1,j+1)
+    for i in range(n-1):
+        for j in range(i+1,n-1):
+            ans[j][i]=ans[i][j]
+    return ans
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    n = int(input())
+
+    result = knightlOnAChessboard(n)
+
+    fptr.write('\n'.join([' '.join(map(str, x)) for x in result]))
+    fptr.write('\n')
+
+    fptr.close()
